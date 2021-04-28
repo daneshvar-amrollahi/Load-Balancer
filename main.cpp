@@ -2,10 +2,17 @@
 #include <string.h>
 #include <fstream>
 #include <vector>
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 using namespace std;
 
 #define TRAITS_FILENAME "traits.csv"
+#define READ 0
+#define WRITE 1
+#define MSG_LEN 9
 
 void error(const char *msg)
 {
@@ -60,7 +67,7 @@ vector<int> separateByComma(string line)
 
     return ans;
 }
-
+/*
 vector<vector<int> > getTraits(vector<string> lines)
 {
     vector<vector<int> > ans;
@@ -68,18 +75,49 @@ vector<vector<int> > getTraits(vector<string> lines)
         ans.push_back(separateByComma(line));
     return ans;
 }
+*/
 
 vector<string> findClosest(const string& traits_path, const string& users_path)
 {
     vector<string> lines = getLines(traits_path, users_path);
-    vector<vector<int> > traits = getTraits(lines);
+    //vector<vector<int> > traits = getTraits(lines);
 
-    for (int i = 0 ; i < traits.size() ; i++)
-    {
-        for (int j = 0 ; j < traits[i].size() ; j++)
-            cout << traits[i][j] << " ";
-        cout << endl;
-    }
+    //for (int i = 0 ; i < lines.size() ; i++)
+    //{
+        int fd[2];
+        if (pipe(fd) == -1)
+            error("ERROR on pipe()");
+        
+
+        int pid = fork();
+        if (pid < 0)
+            error("ERROR on fork()");
+
+        if (pid == 0) //child process
+        {
+            char buf[MSG_LEN];
+            close(fd[WRITE]);
+            read(fd[READ], buf, MSG_LEN);
+            string msg = string(buf);
+            cout << "This is child. Reading " << msg << endl;
+            close(fd[READ]);
+            //exec()
+
+        }
+        else //parent process
+        {
+            //give the i'th line of CSV file to child process
+            close(fd[READ]);
+            //write(fd[WRITE], lines[i].c_str(), strlen(lines[i].c_str()));
+            string msg = "1,2,3,4,5";
+            cout << "This is parent. Writing " << msg << endl;
+            write(fd[WRITE], msg.c_str(), MSG_LEN);
+            wait(NULL);
+            close(fd[WRITE]);
+            
+        }
+        
+    //}
 
     return lines;
 }
