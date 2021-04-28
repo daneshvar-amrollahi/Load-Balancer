@@ -1,8 +1,8 @@
 How to run:
 
-    ```
+    
     $ make
 
-    $ ./main-process.out inputFiles/ inputFiles
+    $ ./main-process.out inputFiles/ inputFiles/
 
-    ```
+    
