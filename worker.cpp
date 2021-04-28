@@ -19,8 +19,7 @@ int main(int argc, char *argv[])
     string trait_line = string(argv[1]);
     string users_path = string(argv[2]);
     cout << "This is a worker. The line assigned to me is: " << trait_line << endl;
-    cout << "Users path is " << users_path << endl;
-
+    
     for (int i = 0 ; i < USERS_NUM ; i++)
     {
         string file_name = "users-" + to_string(i) + ".csv";
