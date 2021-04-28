@@ -5,6 +5,7 @@
 
 using namespace std;
 
+#define TRAITS_FILENAME "traits.csv"
 
 void error(const char *msg)
 {
@@ -21,7 +22,7 @@ void get_file_paths(const int &argc, char* argv[], string &traits_path, string &
         exit(0);
     }
 
-    traits_path = string(argv[1]);
+    traits_path = string(argv[1]) + TRAITS_FILENAME;
     users_path = string(argv[2]);
 }
 
