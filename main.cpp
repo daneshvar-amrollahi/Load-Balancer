@@ -6,14 +6,11 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include "defs.h"
 
 using namespace std;
 
-#define TRAITS_FILENAME "traits.csv"
-#define READ 0
-#define WRITE 1
-#define MSG_LEN 9
-#define USERS_NUM 3
+
 
 void error(const char *msg)
 {
@@ -25,10 +22,7 @@ void error(const char *msg)
 void get_file_paths(const int &argc, char* argv[], string &traits_path, string &users_path)
 {
     if (argc != 3)
-    {
         error("ERROR: File paths not provided correctly\n");
-        exit(0);
-    }
 
     traits_path = string(argv[1]) + TRAITS_FILENAME;
     users_path = string(argv[2]);
@@ -49,6 +43,7 @@ vector<string> getLines(const string& traits_path, const string& users_path)
     return ans;
 }
 
+/*
 vector<int> separateByComma(string line)
 {
     vector<int> ans;
@@ -68,7 +63,7 @@ vector<int> separateByComma(string line)
 
     return ans;
 }
-/*
+
 vector<vector<int> > getTraits(vector<string> lines)
 {
     vector<vector<int> > ans;
@@ -99,11 +94,16 @@ vector<string> findClosest(const string& traits_path, const string& users_path)
             char buf[MSG_LEN];
             close(fd[WRITE]);
             read(fd[READ], buf, MSG_LEN);
-            string msg = string(buf);
+            //string msg = string(buf);
             //cout << "This is child. Reading " << msg << endl;
             close(fd[READ]);
 
-            char* args[] = {"./worker.out", buf, NULL}; 
+            int len = users_path.size();
+            char path[len + 1];
+            for (int i = 0 ; i < len ; i++) path[i] = users_path[i];
+            path[len] = '\0';
+
+            char* args[] = {"./worker.out", buf, path, NULL}; 
             execv("./worker.out", args); //example: ./worker 1,2,3,4,5 (the line given to worker i is 1,2,3,4,5)
 
         }
