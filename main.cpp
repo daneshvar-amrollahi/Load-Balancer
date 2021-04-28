@@ -82,8 +82,8 @@ vector<string> findClosest(const string& traits_path, const string& users_path)
     vector<string> lines = getLines(traits_path, users_path);
     //vector<vector<int> > traits = getTraits(lines);
 
-    //for (int i = 0 ; i < lines.size() ; i++)
-    //{
+    for (int i = 0 ; i < lines.size() ; i++)
+    {
         int fd[2];
         if (pipe(fd) == -1)
             error("ERROR on pipe()");
@@ -99,9 +99,13 @@ vector<string> findClosest(const string& traits_path, const string& users_path)
             close(fd[WRITE]);
             read(fd[READ], buf, MSG_LEN);
             string msg = string(buf);
-            cout << "This is child. Reading " << msg << endl;
+            //cout << "This is child. Reading " << msg << endl;
             close(fd[READ]);
-            //exec()
+
+            string s = to_string(i);
+            char worker_id[1] = {i + '0'};
+            char* args[] = {"./worker.out", worker_id, buf, NULL}; 
+            execv("./worker.out", args); //example: ./worker 2 1,2,3,4,5 (the line given to worker 2 is 1,2,3,4,5)
 
         }
         else //parent process
@@ -109,15 +113,15 @@ vector<string> findClosest(const string& traits_path, const string& users_path)
             //give the i'th line of CSV file to child process
             close(fd[READ]);
             //write(fd[WRITE], lines[i].c_str(), strlen(lines[i].c_str()));
-            string msg = "1,2,3,4,5";
-            cout << "This is parent. Writing " << msg << endl;
+            string msg = lines[i];
+            //cout << "This is parent. Writing " << msg << endl;
             write(fd[WRITE], msg.c_str(), MSG_LEN);
             wait(NULL);
             close(fd[WRITE]);
             
         }
         
-    //}
+    }
 
     return lines;
 }
