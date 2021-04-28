@@ -3,7 +3,7 @@ STD=-std=c++11
 CF=$(STD)
 BUILD_DIR=build
 
-all: $(BUILD_DIR) main-process.out worker.out
+all: $(BUILD_DIR) main-process.out worker.out min_euclidean.out
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
@@ -20,6 +20,14 @@ $(BUILD_DIR)/worker.o: worker.cpp
 
 worker.out: $(BUILD_DIR)/worker.o
 	$(CC) $(CF) -o worker.out $(BUILD_DIR)/worker.o
+
+
+$(BUILD_DIR)/min_euclidean.o: min_euclidean.cpp
+	$(CC) $(CF) -c min_euclidean.cpp -o $(BUILD_DIR)/min_euclidean.o
+
+
+min_euclidean.out: $(BUILD_DIR)/min_euclidean.o
+	$(CC) $(CF) -o min_euclidean.out $(BUILD_DIR)/min_euclidean.o
 
 
 .PHONY: clean
