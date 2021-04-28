@@ -13,6 +13,7 @@ using namespace std;
 #define READ 0
 #define WRITE 1
 #define MSG_LEN 9
+#define USERS_NUM 3
 
 void error(const char *msg)
 {
@@ -102,10 +103,8 @@ vector<string> findClosest(const string& traits_path, const string& users_path)
             //cout << "This is child. Reading " << msg << endl;
             close(fd[READ]);
 
-            string s = to_string(i);
-            char worker_id[1] = {i + '0'};
-            char* args[] = {"./worker.out", worker_id, buf, NULL}; 
-            execv("./worker.out", args); //example: ./worker 2 1,2,3,4,5 (the line given to worker 2 is 1,2,3,4,5)
+            char* args[] = {"./worker.out", buf, NULL}; 
+            execv("./worker.out", args); //example: ./worker 1,2,3,4,5 (the line given to worker i is 1,2,3,4,5)
 
         }
         else //parent process
