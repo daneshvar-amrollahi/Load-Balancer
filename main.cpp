@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 #include "defs.h"
 
 using namespace std;
@@ -47,6 +49,7 @@ vector<string> getLines(const string& traits_path, const string& users_path)
 vector<string> findClosest(const string& traits_path, const string& users_path)
 {
     vector<string> lines = getLines(traits_path, users_path);
+    vector<string> result;
 
     for (int i = 0 ; i < lines.size() ; i++)
     {
@@ -61,9 +64,10 @@ vector<string> findClosest(const string& traits_path, const string& users_path)
 
         if (pid == 0) //child process
         {
-            char outbuf[LINE_LEN];
             close(fd[WRITE]);
-            read(fd[READ], outbuf, LINE_LEN);
+            char inbuf[LINE_LEN + 1];
+            bzero(inbuf, LINE_LEN + 1);
+            read(fd[READ], inbuf, LINE_LEN + 1);
             close(fd[READ]);
 
             int len = users_path.size();
@@ -71,7 +75,10 @@ vector<string> findClosest(const string& traits_path, const string& users_path)
             for (int i = 0 ; i < len ; i++) path[i] = users_path[i];
             path[len] = '\0';
 
-            char* args[] = {"./worker.out", outbuf, path, NULL}; 
+            printf("inbuf is %s\n", inbuf);
+            
+
+            char* args[] = {"./worker.out", inbuf, path, NULL}; 
             execv("./worker.out", args); //example: ./worker 1,2,3,4,5 (the line given to worker i is 1,2,3,4,5)
 
         }
@@ -82,15 +89,54 @@ vector<string> findClosest(const string& traits_path, const string& users_path)
             //write(fd[WRITE], lines[i].c_str(), strlen(lines[i].c_str()));
             string msg = lines[i];
             //cout << "This is parent. Writing " << msg << endl;
-            write(fd[WRITE], msg.c_str(), LINE_LEN);
-            wait(NULL);
-            close(fd[WRITE]);
+
+            if (mkfifo(FIFO_MAIN, 0777) == -1)
+            {
+                if (errno != EEXIST)
+                    error("ERROR on mkfifo\n");
+            }
+
+            cout << "MAIN writing " << msg << " for WORKER\n";
+            char msg_c_star[LINE_LEN + 1];
+            bzero(msg_c_star, LINE_LEN + 1);
+            for (int j = 0 ; j < LINE_LEN + 1 ; j++)
+                msg_c_star[j] = msg[j];
+            msg_c_star[LINE_LEN] = '\0';
+
+            cout << "msg_c_star is " << msg_c_star << endl;
+
+            write(fd[WRITE], msg_c_star, LINE_LEN + 1);
             
+            close(fd[WRITE]);
+
+            
+            int fifo_id = open(FIFO_MAIN, O_RDONLY);
+            char inbuf[ANS_LEN + 1];
+            bzero(inbuf, ANS_LEN + 1);
+            read(fifo_id, inbuf, ANS_LEN);
+            inbuf[ANS_LEN] = '\0';
+            string ans = string(inbuf);
+            cout << "MAIN received " << ans << " from worker " << endl << endl;;
+            result.push_back(ans);   
+            
+            
+            
+
+            wait(NULL);
         }
         
     }
 
-    return lines;
+    return result;
+}
+
+void outputToFile(const vector<string>& result)
+{
+    ofstream fout;
+    fout.open(OUTPUT_FILENAME);
+    for (auto line: result)
+        fout << line << endl;
+    fout.close();
 }
 
 int main(int argc, char *argv[])
@@ -100,9 +146,9 @@ int main(int argc, char *argv[])
     
     cout << traits_path << " " << users_path << endl;
 
-    vector<string> ans = findClosest(traits_path, users_path);
+    vector<string> result = findClosest(traits_path, users_path);
 
-
+    outputToFile(result);
     
     return 0;
 }

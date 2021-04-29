@@ -6,7 +6,10 @@
 #define WRITE 1
 #define LINE_LEN 9
 #define USERS_NUM 3
-#define MYFIFO "myfifo"
+#define FIFO_WORKER "fifo_worker"
 #define ANS_LEN 17
+#define INF 2e9
+#define FIFO_MAIN "fifo_main"
+#define OUTPUT_FILENAME "results.csv"
 
 #endif  

@@ -45,7 +45,7 @@ int getDistance(vector<int> first, vector<int> second)
     return res;
 }
 
-#define INF 2e9
+
 string getMin(const string& trait_line, const string& file_path)
 {
     ifstream fin;
@@ -83,13 +83,8 @@ int main(int argc, char *argv[])
     
 
     
-    if (mkfifo(MYFIFO, 0777) == -1)
-    {
-        if (errno != EEXIST)
-            error("ERROR on mkfifo\n");
-    }
     
-    int fifo_fd = open(MYFIFO, O_WRONLY);
+    int fifo_fd = open(FIFO_WORKER, O_WRONLY);
     //cout << "min_euclidean writing to FIFO\n";
     write(fifo_fd, ans.c_str(), ANS_LEN);
     //cout << "min_euclidean wrriten to FIFO\n";
