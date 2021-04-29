@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 
     string file_path = users_path + "users-" + argv[3] + ".csv";
     string ans = "users-" + string(argv[3]) + "," + getMin(trait_line, file_path);
-    cout << ans << endl;
+    cout << "MIN_EUCLIDEAN writing " << ans << endl;
 
     
 

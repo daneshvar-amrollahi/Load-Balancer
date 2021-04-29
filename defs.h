@@ -7,6 +7,6 @@
 #define LINE_LEN 9
 #define USERS_NUM 3
 #define MYFIFO "myfifo"
-#define ANS_LEN 15
+#define ANS_LEN 17
 
 #endif  

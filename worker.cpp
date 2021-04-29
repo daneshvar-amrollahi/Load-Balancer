@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <fstream>
+#include <vector>
 
 using namespace std;
 
@@ -20,7 +21,7 @@ int main(int argc, char *argv[])
 {
     string trait_line = string(argv[1]);
     string users_path = string(argv[2]);
-    cout << "This is a worker. The line assigned to me is: " << trait_line << endl;
+    cout << "WORKER assigned " << trait_line << endl;
     
     for (int i = 0 ; i < USERS_NUM ; i++)
     {
@@ -57,12 +58,18 @@ int main(int argc, char *argv[])
             write(fd[WRITE], trait_line.c_str(), LINE_LEN);
             close(fd[WRITE]);
 
+            vector<string> candidates;
+
             int fifo_id = open(MYFIFO, O_RDONLY);
-            char inbuf[ANS_LEN];
+            char inbuf[ANS_LEN + 1];
             read(fifo_id, inbuf, ANS_LEN);
-            string out = inbuf;
-            cout << "This is parent. I received " << out << endl;
+            inbuf[ANS_LEN] = '\0';
+            string out = string(inbuf);
+            cout << "WORKER received " << out << endl;
+            candidates.push_back(out.substr(6, 9)); //only the 5 traits with commas
+            close(fifo_id);
             wait(NULL);
+            
         }
     }
     
