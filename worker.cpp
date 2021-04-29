@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 {
     string trait_line = string(argv[1]);
     string users_path = string(argv[2]);
-    cout << "WORKER assigned " << trait_line << endl;
+    cout << "WORKER assigned " << trait_line << endl << endl;
     
     vector<string> candidates;
     for (int i = 0 ; i < USERS_NUM ; i++)
@@ -137,10 +137,9 @@ int main(int argc, char *argv[])
     string ans = getMin(trait_line, candidates);
 
     int fifo_id = open(FIFO_MAIN, O_WRONLY);
-    cout << "WORKER writing " << ans << " for MAIN process " << endl;
+    cout << endl << "WORKER writing " << ans << " (min ans) for MAIN process " << endl;
     write(fifo_id, ans.c_str(), ANS_LEN);
     close(fifo_id);
-    cout << endl;
         
 
     return 0;

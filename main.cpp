@@ -75,9 +75,7 @@ vector<string> findClosest(const string& traits_path, const string& users_path)
             for (int i = 0 ; i < len ; i++) path[i] = users_path[i];
             path[len] = '\0';
 
-            printf("inbuf is %s\n", inbuf);
             
-
             char* args[] = {"./worker.out", inbuf, path, NULL}; 
             execv("./worker.out", args); //example: ./worker 1,2,3,4,5 (the line given to worker i is 1,2,3,4,5)
 
@@ -88,7 +86,6 @@ vector<string> findClosest(const string& traits_path, const string& users_path)
             close(fd[READ]);
             //write(fd[WRITE], lines[i].c_str(), strlen(lines[i].c_str()));
             string msg = lines[i];
-            //cout << "This is parent. Writing " << msg << endl;
 
             if (mkfifo(FIFO_MAIN, 0777) == -1)
             {
@@ -97,15 +94,8 @@ vector<string> findClosest(const string& traits_path, const string& users_path)
             }
 
             cout << "MAIN writing " << msg << " for WORKER\n";
-            char msg_c_star[LINE_LEN + 1];
-            bzero(msg_c_star, LINE_LEN + 1);
-            for (int j = 0 ; j < LINE_LEN + 1 ; j++)
-                msg_c_star[j] = msg[j];
-            msg_c_star[LINE_LEN] = '\0';
 
-            cout << "msg_c_star is " << msg_c_star << endl;
-
-            write(fd[WRITE], msg_c_star, LINE_LEN + 1);
+            write(fd[WRITE], msg.c_str(), LINE_LEN + 1);
             
             close(fd[WRITE]);
 
@@ -116,7 +106,7 @@ vector<string> findClosest(const string& traits_path, const string& users_path)
             read(fifo_id, inbuf, ANS_LEN);
             inbuf[ANS_LEN] = '\0';
             string ans = string(inbuf);
-            cout << "MAIN received " << ans << " from worker " << endl << endl;;
+            cout << "MAIN received " << ans << " from worker " << endl << endl << endl;
             result.push_back(ans);   
             
             
