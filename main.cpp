@@ -43,40 +43,10 @@ vector<string> getLines(const string& traits_path, const string& users_path)
     return ans;
 }
 
-/*
-vector<int> separateByComma(string line)
-{
-    vector<int> ans;
-
-    string cur = "";
-    for (auto c: line)
-    {
-        if (c == ',')
-        {
-            ans.push_back(stoi(cur));
-            cur = "";
-        }
-        else
-            cur += c;
-    }
-    ans.push_back(stoi(cur));
-
-    return ans;
-}
-
-vector<vector<int> > getTraits(vector<string> lines)
-{
-    vector<vector<int> > ans;
-    for (auto line: lines)
-        ans.push_back(separateByComma(line));
-    return ans;
-}
-*/
 
 vector<string> findClosest(const string& traits_path, const string& users_path)
 {
     vector<string> lines = getLines(traits_path, users_path);
-    //vector<vector<int> > traits = getTraits(lines);
 
     for (int i = 0 ; i < lines.size() ; i++)
     {
@@ -91,11 +61,9 @@ vector<string> findClosest(const string& traits_path, const string& users_path)
 
         if (pid == 0) //child process
         {
-            char buf[MSG_LEN];
+            char outbuf[LINE_LEN];
             close(fd[WRITE]);
-            read(fd[READ], buf, MSG_LEN);
-            //string msg = string(buf);
-            //cout << "This is child. Reading " << msg << endl;
+            read(fd[READ], outbuf, LINE_LEN);
             close(fd[READ]);
 
             int len = users_path.size();
@@ -103,7 +71,7 @@ vector<string> findClosest(const string& traits_path, const string& users_path)
             for (int i = 0 ; i < len ; i++) path[i] = users_path[i];
             path[len] = '\0';
 
-            char* args[] = {"./worker.out", buf, path, NULL}; 
+            char* args[] = {"./worker.out", outbuf, path, NULL}; 
             execv("./worker.out", args); //example: ./worker 1,2,3,4,5 (the line given to worker i is 1,2,3,4,5)
 
         }
@@ -114,7 +82,7 @@ vector<string> findClosest(const string& traits_path, const string& users_path)
             //write(fd[WRITE], lines[i].c_str(), strlen(lines[i].c_str()));
             string msg = lines[i];
             //cout << "This is parent. Writing " << msg << endl;
-            write(fd[WRITE], msg.c_str(), MSG_LEN);
+            write(fd[WRITE], msg.c_str(), LINE_LEN);
             wait(NULL);
             close(fd[WRITE]);
             
