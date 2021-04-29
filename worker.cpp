@@ -54,7 +54,8 @@ string getMin(const string& trait_line, const vector<string>& candidates)
     string ans;
     for (auto candidate: candidates)
     {
-        int current_distance = getDistance(trait, separateByComma(candidate.substr(6, 9)));
+        int current_distance = getDistance(trait, separateByComma(candidate.substr(8, 9)));
+        //cout << "Dist " << trait_line << " " << candidate.substr(8, 9) << " " << current_distance << endl;
         if (current_distance < mn)
         {
             mn = current_distance;
