@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
     cout << "WORKER assigned " << trait_line << endl << endl;
     
     vector<string> candidates;
-    for (int i = 0 ; i < USERS_NUM ; i++)
+    for (int i = 1 ; i <= USERS_NUM ; i++)
     {
         string file_name = "users-" + to_string(i) + ".csv";
         
