@@ -4,7 +4,9 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <fstream>
 
 using namespace std;
 
@@ -31,15 +33,12 @@ int main(int argc, char *argv[])
         int pid = fork();
         if(pid == 0) //child process
         {
-            char buf[MSG_LEN];
+            char outbuf[LINE_LEN];
             close(fd[WRITE]);
-            read(fd[READ], buf, MSG_LEN);
-            string msg = string(buf);
-            //cout << "This is a child of worker. I am assigned to user " << i << endl;
-            //cout << "The message I got from my parent is: " << msg << endl;
+            read(fd[READ], outbuf, LINE_LEN);
+            string msg = string(outbuf);
             close(fd[READ]);
 
-            
             int len = users_path.size();
             char path[len + 1];
             for (int i = 0 ; i < len ; i++) path[i] = users_path[i];
@@ -47,16 +46,23 @@ int main(int argc, char *argv[])
 
             char users_id[2] = {i + '0', '\0'}; 
 
-            char* args[] = {"./min_euclidean.out", buf, path, users_id, NULL}; 
+            char* args[] = {"./min_euclidean.out", outbuf, path, users_id, NULL}; 
             execv("./min_euclidean.out", args); //example: ./min_euclidan 1,2,3,4,5 /inputFiles 2   (go read users-2.csv and compare each line to 1,2,3,4,5)
-
+            
+            
         }
         else //parent process
         {
             close(fd[READ]);
-            write(fd[WRITE], trait_line.c_str(), MSG_LEN);
-            wait(NULL);
+            write(fd[WRITE], trait_line.c_str(), LINE_LEN);
             close(fd[WRITE]);
+
+            int fifo_id = open(MYFIFO, O_RDONLY);
+            char inbuf[ANS_LEN];
+            read(fifo_id, inbuf, ANS_LEN);
+            string out = inbuf;
+            cout << "This is parent. I received " << out << endl;
+            wait(NULL);
         }
     }
     

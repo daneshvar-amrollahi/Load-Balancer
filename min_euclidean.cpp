@@ -1,8 +1,21 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <cstring>
+#include "defs.h"
+#include <errno.h>
 
 using namespace std;
+
+void error(const char *msg)
+{
+    perror(msg);
+    exit(0);
+}
 
 vector<int> separateByComma(string line)
 {
@@ -66,5 +79,21 @@ int main(int argc, char *argv[])
     string file_path = users_path + "users-" + argv[3] + ".csv";
     string ans = "users-" + string(argv[3]) + "," + getMin(trait_line, file_path);
     cout << ans << endl;
+
+    
+
+    
+    if (mkfifo(MYFIFO, 0777) == -1)
+    {
+        if (errno != EEXIST)
+            error("ERROR on mkfifo\n");
+    }
+    
+    int fifo_fd = open(MYFIFO, O_WRONLY);
+    //cout << "min_euclidean writing to FIFO\n";
+    write(fifo_fd, ans.c_str(), ANS_LEN);
+    //cout << "min_euclidean wrriten to FIFO\n";
+    close(fifo_fd);
+    
     return 0;
 }
