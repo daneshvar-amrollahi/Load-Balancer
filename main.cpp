@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
     string traits_path, users_path;
     get_file_paths(argc, argv, traits_path, users_path);
     
-    cout << traits_path << " " << users_path << endl;
+
 
     vector<string> result = findClosest(traits_path, users_path);
 
