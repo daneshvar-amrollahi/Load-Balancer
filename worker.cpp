@@ -9,6 +9,7 @@
 #include <fstream>
 #include <vector>
 #include <strings.h>
+#include <utility>
 
 using namespace std;
 
@@ -47,22 +48,33 @@ int getDistance(vector<int> first, vector<int> second)
 }
 
 
-string getMin(const string& trait_line, const vector<string>& candidates)
+string getMin(const string& trait_line, const vector<pair<string, int> >& candidates)
 {
     vector<int> trait = separateByComma(trait_line);
     int mn = INF;
-    string ans;
+    int ans_id;
+    string ans_line;
     for (auto candidate: candidates)
     {
-        int current_distance = getDistance(trait, separateByComma(candidate.substr(8, 9)));
-        //cout << "Dist " << trait_line << " " << candidate.substr(8, 9) << " " << current_distance << endl;
+        int current_distance = getDistance(trait, separateByComma(candidate.first.substr(8, 9)));
+        cout << "Dist " << trait_line << " " << candidate.second << " " << candidate.first.substr(8, 9) << " " << current_distance << endl;
         if (current_distance < mn)
         {
             mn = current_distance;
-            ans = candidate;
+            ans_line = candidate.first;
+            ans_id = candidate.second;
+        }
+        else
+        if (current_distance == mn)
+        {
+            if (candidate.second < ans_id)
+            {
+                ans_line = candidate.first;
+                ans_id = candidate.second;
+            }
         }
     }
-    return ans;
+    return ans_line;
 }
 
 int main(int argc, char *argv[])
@@ -71,7 +83,7 @@ int main(int argc, char *argv[])
     string users_path = string(argv[2]);
     cout << "WORKER assigned " << trait_line << endl << endl;
     
-    vector<string> candidates;
+    vector<pair<string, int> > candidates;
     for (int i = 1 ; i <= USERS_NUM ; i++)
     {
         string file_name = "users-" + to_string(i) + ".csv";
@@ -123,7 +135,7 @@ int main(int argc, char *argv[])
             inbuf[ANS_LEN] = '\0';
             string out = string(inbuf);
             cout << "WORKER received " << out << endl;
-            candidates.push_back(out); //only the 5 traits with commas
+            candidates.push_back({out, i}); //only the 5 traits with commas
             
             close(fifo_id);
             
